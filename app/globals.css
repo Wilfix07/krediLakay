@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
+
+    /* Banking app specific colors */
+    --banking-blue: 221.2 83.2% 53.3%;
+    --banking-blue-light: 221.2 83.2% 85%;
+    --banking-blue-dark: 221.2 83.2% 35%;
+    --banking-gradient-start: 221.2 83.2% 53.3%;
+    --banking-gradient-end: 240 100% 70%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Banking app specific components */
+  .banking-gradient {
+    background: linear-gradient(135deg, hsl(var(--banking-gradient-start)), hsl(var(--banking-gradient-end)));
+  }
+
+  .banking-card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200;
+  }
+
+  .banking-card-header {
+    @apply bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100;
+  }
+
+  .banking-sidebar {
+    background: linear-gradient(180deg, hsl(var(--banking-blue)) 0%, hsl(var(--banking-blue-dark)) 100%);
+  }
+
+  .banking-nav-item {
+    @apply flex items-center px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200;
+  }
+
+  .banking-nav-item.active {
+    @apply bg-white/20 text-white shadow-lg;
+  }
+
+  .banking-stat-card {
+    @apply banking-card p-6;
+  }
+
+  .banking-stat-icon {
+    @apply w-12 h-12 rounded-full flex items-center justify-center mb-4;
+  }
+
+  .banking-stat-value {
+    @apply text-3xl font-bold text-gray-900 mb-1;
+  }
+
+  .banking-stat-label {
+    @apply text-sm text-gray-600 font-medium;
+  }
+
+  .banking-stat-change {
+    @apply flex items-center text-sm mt-2;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .banking-sidebar {
+      width: 280px;
+    }
+
+    .banking-nav-item {
+      @apply px-3 py-2 text-sm;
+    }
+
+    .banking-stat-card {
+      @apply p-4;
+    }
+
+    .banking-stat-value {
+      @apply text-2xl;
+    }
+
+    .banking-card {
+      @apply rounded-lg;
+    }
+  }
+
+  /* Touch-friendly interactions */
+  @media (hover: none) and (pointer: coarse) {
+    .banking-nav-item {
+      @apply active:bg-white/20;
+    }
+
+    .banking-card {
+      @apply active:shadow-lg;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .banking-card {
+      @apply border-2 border-gray-300;
+    }
+
+    .banking-nav-item {
+      @apply border border-white/20;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .banking-card,
+    .banking-nav-item {
+      @apply transition-none;
+    }
+  }
+}
