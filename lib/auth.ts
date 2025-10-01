@@ -9,7 +9,7 @@ export interface AuthUser extends Profile {
 }
 
 export async function signUp(email: string, password: string, fullName: string, role: 'admin' | 'agent' | 'manager' = 'agent') {
-  const { data, error } = await supabase.auth.signUp({
+  const { data, error } = await supabase!.auth.signUp({
     email,
     password,
     options: {
@@ -26,7 +26,7 @@ export async function signUp(email: string, password: string, fullName: string, 
 }
 
 export async function signIn(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase!.auth.signInWithPassword({
     email,
     password
   })
@@ -37,16 +37,16 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut() {
-  const { error } = await supabase.auth.signOut()
+  const { error } = await supabase!.auth.signOut()
   if (error) throw error
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase!.auth.getUser()
 
   if (!user) return null
 
-  const { data: profile } = await supabase
+  const { data: profile } = await supabase!
     .from('profiles')
     .select(`
       *,
@@ -59,25 +59,25 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 }
 
 export async function getSession() {
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { session } } = await supabase!.auth.getSession()
   return session
 }
 
 export async function resetPassword(email: string) {
-  const { error } = await supabase.auth.resetPasswordForEmail(email)
+  const { error } = await supabase!.auth.resetPasswordForEmail(email)
   if (error) throw error
 }
 
 export async function updatePassword(password: string) {
-  const { error } = await supabase.auth.updateUser({ password })
+  const { error } = await supabase!.auth.updateUser({ password })
   if (error) throw error
 }
 
 export async function updateProfile(updates: Partial<Profile>) {
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase!.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
-  const { data, error } = await supabase
+  const { data, error } = await supabase!
     .from('profiles')
     .update(updates)
     .eq('id', user.id)

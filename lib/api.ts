@@ -512,7 +512,7 @@ export const dashboardApi = {
     const institution = await institutionApi.getCurrent()
     if (institution.error) return { error: institution.error }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabase!
       .rpc('get_recent_payments', {
         institution_id: institution.data!.id,
         limit_count: limit
