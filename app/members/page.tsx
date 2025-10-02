@@ -176,7 +176,7 @@ export default function MembersPage() {
               </TabsContent>
 
               <TabsContent value="kyc" className="space-y-6">
-                <KycManager />
+                <KycReviewCenter />
               </TabsContent>
             </Tabs>
           </div>
