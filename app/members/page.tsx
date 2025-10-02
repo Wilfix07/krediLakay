@@ -11,7 +11,8 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Users, Search, Filter, Plus, Eye, Edit, Shield, Clock, TrendingUp } from 'lucide-react'
 import { MemberManagement } from '@/components/admin/member-management'
-import { KycManager } from '@/components/clients/kyc-manager'
+import { KycReviewCenter } from '@/components/members/kyc-review-center'
+import { MemberRegistrationForm } from '@/components/members/member-registration-form'
 
 const mockUser = {
   name: 'Agent Principal',
@@ -42,10 +43,14 @@ export default function MembersPage() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="list" className="flex items-center">
                   <Users className="h-4 w-4 mr-2" />
                   Liste
+                </TabsTrigger>
+                <TabsTrigger value="new" className="flex items-center">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouveau
                 </TabsTrigger>
                 <TabsTrigger value="search" className="flex items-center">
                   <Search className="h-4 w-4 mr-2" />
@@ -120,6 +125,10 @@ export default function MembersPage() {
                     </div>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="new" className="space-y-6">
+                <MemberRegistrationForm />
               </TabsContent>
 
               <TabsContent value="search" className="space-y-6">

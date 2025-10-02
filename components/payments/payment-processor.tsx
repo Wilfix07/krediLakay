@@ -208,36 +208,80 @@ export function PaymentProcessor({ loanId, onPaymentProcessed }: PaymentProcesso
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Form submitted with data:', paymentForm)
 
-    if (!paymentForm.loan_id || paymentForm.amount <= 0) return
-
-    // This would call the API to create the payment
-    const newPayment: Payment = {
-      id: Date.now().toString(),
-      created_at: new Date().toISOString(),
-      loan_id: paymentForm.loan_id,
-      amount: paymentForm.amount,
-      principal_paid: paymentForm.principal_paid,
-      interest_paid: paymentForm.interest_paid,
-      penalty_paid: paymentForm.penalty_paid,
-      payment_date: paymentForm.payment_date,
-      payment_method: paymentForm.payment_method as any,
-      payment_channel: paymentForm.payment_channel as any,
-      reference_number: paymentForm.reference_number,
-      receipt_number: `RCP-${Date.now()}`,
-      agent_id: '2', // Current user
-      is_reversal: false,
-      notes: paymentForm.notes
+    // Validate form
+    if (!paymentForm.loan_id) {
+      alert('Veuillez sélectionner un prêt')
+      return
     }
 
-    setPayments(prev => [newPayment, ...prev])
-    setIsPaymentDialogOpen(false)
-    resetForm()
+    if (paymentForm.amount <= 0) {
+      alert('Le montant doit être supérieur à 0')
+      return
+    }
 
-    // Generate receipt automatically
-    generateReceipt(newPayment)
+    if (!paymentForm.payment_method) {
+      alert('Veuillez sélectionner une méthode de paiement')
+      return
+    }
 
-    onPaymentProcessed?.(newPayment)
+    console.log('Form validation passed, processing payment...')
+
+    try {
+      // Create the payment object
+      const newPayment: Payment = {
+        id: Date.now().toString(),
+        created_at: new Date().toISOString(),
+        loan_id: paymentForm.loan_id,
+        amount: paymentForm.amount,
+        principal_paid: paymentForm.principal_paid,
+        interest_paid: paymentForm.interest_paid,
+        penalty_paid: paymentForm.penalty_paid,
+        payment_date: paymentForm.payment_date,
+        payment_method: paymentForm.payment_method as any,
+        payment_channel: paymentForm.payment_channel as any,
+        reference_number: paymentForm.reference_number || `PAY-${Date.now()}`,
+        receipt_number: `RCP-${Date.now()}`,
+        agent_id: '2', // Current user
+        is_reversal: false,
+        notes: paymentForm.notes
+      }
+
+      // Add to local state for immediate UI feedback
+      setPayments(prev => [newPayment, ...prev])
+
+      // Update loan balance
+      const selectedLoanData = loans.find(loan => loan.id === paymentForm.loan_id)
+      if (selectedLoanData) {
+        const updatedLoans = loans.map(loan =>
+          loan.id === paymentForm.loan_id
+            ? {
+                ...loan,
+                paid_amount: loan.paid_amount + paymentForm.principal_paid + paymentForm.interest_paid + paymentForm.penalty_paid,
+                remaining_balance: loan.total_amount - (loan.paid_amount + paymentForm.principal_paid + paymentForm.interest_paid + paymentForm.penalty_paid)
+              }
+            : loan
+        )
+        setLoans(updatedLoans)
+      }
+
+      // Close dialog and reset form
+      setIsPaymentDialogOpen(false)
+      resetForm()
+
+      // Generate receipt automatically
+      generateReceipt(newPayment)
+
+      // Call parent callback
+      onPaymentProcessed?.(newPayment)
+
+      alert('✅ Paiement enregistré avec succès!')
+
+    } catch (error) {
+      console.error('Error processing payment:', error)
+      alert('❌ Erreur lors de l\'enregistrement du paiement')
+    }
   }
 
   const generateReceipt = (payment: Payment) => {
@@ -312,6 +356,7 @@ export function PaymentProcessor({ loanId, onPaymentProcessed }: PaymentProcesso
                   <Select
                     value={paymentForm.loan_id}
                     onValueChange={(value) => {
+                      console.log('Loan selected:', value)
                       setPaymentForm(prev => ({ ...prev, loan_id: value }))
                       const loan = loans.find(l => l.id === value)
                       setSelectedLoan(loan || null)
@@ -321,7 +366,7 @@ export function PaymentProcessor({ loanId, onPaymentProcessed }: PaymentProcesso
                       <SelectValue placeholder="Choisir un prêt actif" />
                     </SelectTrigger>
                     <SelectContent>
-                        {loans.filter(loan => loan.status === 'active').map(loan => (
+                      {loans.filter(loan => loan.status === 'active').map(loan => (
                         <SelectItem key={loan.id} value={loan.id}>
                           {loan.loan_number} - {formatCurrency(loan.next_payment_amount || 0)} dû
                         </SelectItem>
@@ -404,10 +449,13 @@ export function PaymentProcessor({ loanId, onPaymentProcessed }: PaymentProcesso
                   <Label htmlFor="payment_method">Méthode de Paiement</Label>
                   <Select
                     value={paymentForm.payment_method}
-                    onValueChange={(value) => setPaymentForm(prev => ({ ...prev, payment_method: value }))}
+                    onValueChange={(value) => {
+                      console.log('Payment method selected:', value)
+                      setPaymentForm(prev => ({ ...prev, payment_method: value }))
+                    }}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Sélectionner la méthode" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="cash">Espèces</SelectItem>
@@ -423,16 +471,20 @@ export function PaymentProcessor({ loanId, onPaymentProcessed }: PaymentProcesso
                   <Label htmlFor="payment_channel">Canal de Paiement</Label>
                   <Select
                     value={paymentForm.payment_channel}
-                    onValueChange={(value) => setPaymentForm(prev => ({ ...prev, payment_channel: value }))}
+                    onValueChange={(value) => {
+                      console.log('Payment channel selected:', value)
+                      setPaymentForm(prev => ({ ...prev, payment_channel: value }))
+                    }}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Sélectionner le canal" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="cashier">Caissier</SelectItem>
                       <SelectItem value="agent">Agent</SelectItem>
                       <SelectItem value="online">En ligne</SelectItem>
                       <SelectItem value="mobile_app">Application mobile</SelectItem>
+                      <SelectItem value="atm">ATM</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -485,7 +537,7 @@ export function PaymentProcessor({ loanId, onPaymentProcessed }: PaymentProcesso
                   >
                     Annuler
                   </Button>
-                  <Button type="submit">
+                  <Button type="submit" disabled={!paymentForm.loan_id || paymentForm.amount <= 0}>
                     Enregistrer le Paiement
                   </Button>
                 </div>
